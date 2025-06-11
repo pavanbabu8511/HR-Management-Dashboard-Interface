@@ -1,4 +1,4 @@
-\<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -366,6 +366,35 @@
       font-size: 1rem;
     }
 
+    .department-entry {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 5px; /* Spacing between input and buttons */
+    }
+
+    .department-entry .department-input {
+      flex-grow: 1; /* Allow input to take available space */
+      margin-bottom: 0; /* Remove bottom margin from input here */
+    }
+
+    .department-entry button {
+      padding: 8px 12px;
+      margin-top: 0; /* Remove top margin from button here */
+      font-size: 0.9rem;
+      border-radius: 4px;
+    }
+
+    .edit-dept-btn { background-color: #6c757d; } /* Grey */
+    .delete-dept-btn { background-color: #dc3545; } /* Red */
+    .save-dept-btn { background-color: #28a745; } /* Green */
+    .cancel-dept-btn { background-color: #ffc107; } /* Orange */
+
+    .edit-dept-btn:hover { background-color: #5a6268; }
+    .delete-dept-btn:hover { background-color: #c82333; }
+    .save-dept-btn:hover { background-color: #218838; }
+    .cancel-dept-btn:hover { background-color: #e0a800; }
+
     @media (max-width: 768px) {
       .hamburger {
         display: block;
@@ -540,8 +569,20 @@
       <div class="page" id="departments">
         <h2>Departments</h2>
         <div id="departmentListContainer">
-          <input type="text" class="department-input" value="Human Resources" readonly>
-          <input type="text" class="department-input" value="IT Department" readonly>
+          <div class="department-entry" data-id="1">
+            <input type="text" class="department-input" value="Human Resources" readonly>
+            <button class="edit-dept-btn"><i class="fas fa-edit"></i></button>
+            <button class="delete-dept-btn"><i class="fas fa-trash-alt"></i></button>
+            <button class="save-dept-btn" style="display:none;"><i class="fas fa-save"></i></button>
+            <button class="cancel-dept-btn" style="display:none;"><i class="fas fa-times"></i></button>
+          </div>
+          <div class="department-entry" data-id="2">
+            <input type="text" class="department-input" value="IT Department" readonly>
+            <button class="edit-dept-btn"><i class="fas fa-edit"></i></button>
+            <button class="delete-dept-btn"><i class="fas fa-trash-alt"></i></button>
+            <button class="save-dept-btn" style="display:none;"><i class="fas fa-save"></i></button>
+            <button class="cancel-dept-btn" style="display:none;"><i class="fas fa-times"></i></button>
+          </div>
         </div>
         <input type="text" id="newDeptInput" placeholder="New Department">
         <button onclick="addDepartment()">Add Department</button>
@@ -694,15 +735,109 @@
     function addDepartment() {
       const deptInput = document.getElementById('newDeptInput');
       if (deptInput.value.trim()) {
+        const departmentListContainer = document.getElementById('departmentListContainer');
+        const newId = departmentListContainer.children.length + 1; // Simple ID generation
+
+        const deptEntryDiv = document.createElement('div');
+        deptEntryDiv.classList.add('department-entry');
+        deptEntryDiv.setAttribute('data-id', newId);
+
         const input = document.createElement('input');
         input.type = 'text';
         input.classList.add('department-input');
         input.value = deptInput.value.trim();
-        input.setAttribute('readonly', 'true'); 
-        document.getElementById('departmentListContainer').appendChild(input);
+        input.setAttribute('readonly', 'true');
+
+        const editBtn = document.createElement('button');
+        editBtn.classList.add('edit-dept-btn');
+        editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+        editBtn.onclick = () => enableDepartmentEdit(deptEntryDiv, input);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.classList.add('delete-dept-btn');
+        deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        deleteBtn.onclick = () => deleteDepartment(deptEntryDiv);
+
+        const saveBtn = document.createElement('button');
+        saveBtn.classList.add('save-dept-btn');
+        saveBtn.innerHTML = '<i class="fas fa-save"></i>';
+        saveBtn.style.display = 'none'; // Initially hidden
+        saveBtn.onclick = () => saveDepartmentEdit(deptEntryDiv, input);
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.classList.add('cancel-dept-btn');
+        cancelBtn.innerHTML = '<i class="fas fa-times"></i>';
+        cancelBtn.style.display = 'none'; // Initially hidden
+        cancelBtn.onclick = () => cancelDepartmentEdit(deptEntryDiv, input);
+
+        deptEntryDiv.appendChild(input);
+        deptEntryDiv.appendChild(editBtn);
+        deptEntryDiv.appendChild(deleteBtn);
+        deptEntryDiv.appendChild(saveBtn);
+        deptEntryDiv.appendChild(cancelBtn);
+
+        departmentListContainer.appendChild(deptEntryDiv);
         deptInput.value = '';
       }
     }
+
+    function enableDepartmentEdit(deptEntryDiv, inputField) {
+      inputField.removeAttribute('readonly');
+      inputField.focus();
+      inputField.select(); // Select text for easy editing
+
+      deptEntryDiv.querySelector('.edit-dept-btn').style.display = 'none';
+      deptEntryDiv.querySelector('.delete-dept-btn').style.display = 'none';
+      deptEntryDiv.querySelector('.save-dept-btn').style.display = 'inline-block';
+      deptEntryDiv.querySelector('.cancel-dept-btn').style.display = 'inline-block';
+
+      // Store original value for cancel
+      inputField.dataset.originalValue = inputField.value;
+    }
+
+    function saveDepartmentEdit(deptEntryDiv, inputField) {
+      // In a real app, you would send this to a server
+      alert(`Department updated to: ${inputField.value}`);
+
+      inputField.setAttribute('readonly', 'true');
+      deptEntryDiv.querySelector('.edit-dept-btn').style.display = 'inline-block';
+      deptEntryDiv.querySelector('.delete-dept-btn').style.display = 'inline-block';
+      deptEntryDiv.querySelector('.save-dept-btn').style.display = 'none';
+      deptEntryDiv.querySelector('.cancel-dept-btn').style.display = 'none';
+    }
+
+    function cancelDepartmentEdit(deptEntryDiv, inputField) {
+      inputField.value = inputField.dataset.originalValue; // Revert to original
+      inputField.setAttribute('readonly', 'true');
+      deptEntryDiv.querySelector('.edit-dept-btn').style.display = 'inline-block';
+      deptEntryDiv.querySelector('.delete-dept-btn').style.display = 'inline-block';
+      deptEntryDiv.querySelector('.save-dept-btn').style.display = 'none';
+      deptEntryDiv.querySelector('.cancel-dept-btn').style.display = 'none';
+    }
+
+    function deleteDepartment(deptEntryDiv) {
+      if (confirm('Are you sure you want to delete this department?')) {
+        deptEntryDiv.remove();
+        alert('Department deleted.');
+        // In a real app, you would send delete request to server
+      }
+    }
+
+    // Initializing event listeners for existing departments
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.department-entry').forEach(deptEntryDiv => {
+        const inputField = deptEntryDiv.querySelector('.department-input');
+        const editBtn = deptEntryDiv.querySelector('.edit-dept-btn');
+        const deleteBtn = deptEntryDiv.querySelector('.delete-dept-btn');
+        const saveBtn = deptEntryDiv.querySelector('.save-dept-btn');
+        const cancelBtn = deptEntryDiv.querySelector('.cancel-dept-btn');
+
+        editBtn.onclick = () => enableDepartmentEdit(deptEntryDiv, inputField);
+        deleteBtn.onclick = () => deleteDepartment(deptEntryDiv);
+        saveBtn.onclick = () => saveDepartmentEdit(deptEntryDiv, inputField);
+        cancelBtn.onclick = () => cancelDepartmentEdit(deptEntryDiv, inputField);
+      });
+    });
 
     function markTestUserPresent() {
       const today = new Date().toISOString().split('T')[0];
