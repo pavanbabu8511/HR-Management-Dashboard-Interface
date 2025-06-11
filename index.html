@@ -20,7 +20,7 @@
       --bg-light: #f9fafb;
       --text-dark: #111827;
       --card-bg: #ffffff;
-      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
       --transition: all 0.3s ease-in-out;
     }
 
@@ -116,11 +116,42 @@
       z-index: 999;
     }
 
+    .search-bar {
+      position: relative;
+    }
+
     .search-bar input {
       padding: 8px 12px;
       border: 1px solid #ccc;
       border-radius: 6px;
       width: 200px;
+    }
+
+    .suggestions {
+      position: absolute;
+      top: 45px;
+      left: 0;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 200px;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+      z-index: 999;
+      padding: 0;
+      margin: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .suggestions li {
+      list-style: none;
+      padding: 10px 15px;
+      cursor: pointer;
+    }
+
+    .suggestions li:hover {
+      background-color: #f3f4f6;
     }
 
     .user-profile {
@@ -372,7 +403,8 @@
         <i class="fas fa-bars"></i>
       </div>
       <div class="search-bar">
-        <input type="text" placeholder="Search...">
+        <input type="text" placeholder="Search..." id="searchInput">
+        <ul id="suggestionList" class="suggestions"></ul>
       </div>
       <div class="user-profile">
         <div class="notifications">
@@ -394,7 +426,6 @@
       <div class="page active" id="dashboard">
         <h2>Welcome, Pavan!</h2>
         <p>This is your HR dashboard. Use the sidebar to navigate to other sections.</p>
-
         <!-- Summary Cards -->
         <div class="summary-cards">
           <div class="card">
@@ -426,12 +457,10 @@
             </div>
           </div>
         </div>
-
         <!-- Chart -->
         <div class="chart-container">
           <canvas id="performanceChart"></canvas>
         </div>
-
         <!-- Activity Feed -->
         <div class="activity-feed">
           <h3>Recent Activity</h3>
@@ -444,7 +473,6 @@
             <span>Leave request approved for Virat</span>
           </div>
         </div>
-
         <!-- Employee Table -->
         <div class="employee-table">
           <table>
@@ -484,7 +512,7 @@
         </div>
       </div>
 
-      <!-- Add User -->
+      <!-- Other Pages -->
       <div class="page" id="add-user">
         <h2>Add New User</h2>
         <form onsubmit="event.preventDefault(); alert('User Added!');">
@@ -502,7 +530,6 @@
         </form>
       </div>
 
-      <!-- Manage Employees -->
       <div class="page" id="manage-employees">
         <h2>Manage Employees</h2>
         <table>
@@ -512,7 +539,6 @@
         </table>
       </div>
 
-      <!-- Departments -->
       <div class="page" id="departments">
         <h2>Departments</h2>
         <ul id="departmentList">
@@ -523,7 +549,6 @@
         <button onclick="addDepartment()">Add Department</button>
       </div>
 
-      <!-- Attendance -->
       <div class="page" id="attendance">
         <h2>Attendance</h2>
         <table id="attendanceTable">
@@ -532,7 +557,6 @@
         <button onclick="markTestUserPresent()">Mark User Present Today</button>
       </div>
 
-      <!-- Leave Requests -->
       <div class="page" id="leave-requests">
         <h2>Leave Requests</h2>
         <form id="leaveRequestForm">
@@ -546,7 +570,6 @@
         </table>
       </div>
 
-      <!-- Settings -->
       <div class="page" id="settings">
         <h2>Settings</h2>
         <form onsubmit="event.preventDefault(); alert('Settings Saved!');">
@@ -585,14 +608,13 @@
     // Default load
     showPage('dashboard');
 
-    // Handle click navigation
+    // Handle sidebar clicks
     links.forEach(link => {
       link.addEventListener('click', e => {
         e.preventDefault();
         const page = link.getAttribute('data-page');
         showPage(page);
 
-        // Close sidebar on mobile
         if (window.innerWidth <= 768) {
           sidebar.classList.remove('active');
         }
@@ -607,6 +629,60 @@
       });
     }
 
+    // Search Functionality
+    const searchInput = document.getElementById('searchInput');
+    const suggestionList = document.getElementById('suggestionList');
+    const menuItems = [
+      { name: 'Dashboard', page: 'dashboard' },
+      { name: 'Add User', page: 'add-user' },
+      { name: 'Manage Employees', page: 'manage-employees' },
+      { name: 'Departments', page: 'departments' },
+      { name: 'Attendance', page: 'attendance' },
+      { name: 'Leave Requests', page: 'leave-requests' },
+      { name: 'Settings', page: 'settings' }
+    ];
+
+    function showSuggestions(matches) {
+      suggestionList.innerHTML = '';
+      if (matches.length === 0) {
+        suggestionList.style.display = 'none';
+        return;
+      }
+
+      matches.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item.name;
+        li.addEventListener('click', () => {
+          showPage(item.page);
+          searchInput.value = item.name;
+          suggestionList.style.display = 'none';
+        });
+        suggestionList.appendChild(li);
+      });
+
+      suggestionList.style.display = 'block';
+    }
+
+    searchInput.addEventListener('input', function () {
+      const query = this.value.toLowerCase().trim();
+      if (!query) {
+        suggestionList.style.display = 'none';
+        return;
+      }
+
+      const matches = menuItems.filter(item =>
+        item.name.toLowerCase().includes(query)
+      );
+
+      showSuggestions(matches);
+    });
+
+    document.addEventListener('click', function (event) {
+      if (!document.querySelector('.search-bar').contains(event.target)) {
+        suggestionList.style.display = 'none';
+      }
+    });
+
     // Add User Form Submission
     document.querySelector('#add-user form').addEventListener('submit', function () {
       const name = this.querySelector('input[type="text"]').value;
@@ -618,7 +694,6 @@
       this.reset();
     });
 
-    // Add Department
     function addDepartment() {
       const deptInput = document.getElementById('newDeptInput');
       if (deptInput.value.trim()) {
@@ -629,7 +704,6 @@
       }
     }
 
-    // Mark Test User as Present
     function markTestUserPresent() {
       const today = new Date().toISOString().split('T')[0];
       const row = document.createElement('tr');
@@ -637,7 +711,6 @@
       document.getElementById('attendanceTable').appendChild(row);
     }
 
-    // Leave Request Form Submission
     document.getElementById('leaveRequestForm').onsubmit = function(e) {
       e.preventDefault();
       const emp = this.querySelector('input[type="text"]').value;
