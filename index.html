@@ -1,17 +1,14 @@
-<!DOCTYPE html>
+\<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HR Management Dashboard</title>
 
-  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/> 
 
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
@@ -356,6 +353,18 @@
       border-radius: 10px;
       box-shadow: var(--shadow-sm);
     }
+    
+    /* Style for department input fields */
+    .department-input {
+      width: calc(100% - 20px); /* Adjust width as needed */
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: #f9fafb; /* Light background for read-only */
+      color: var(--text-dark);
+      font-size: 1rem;
+    }
 
     @media (max-width: 768px) {
       .hamburger {
@@ -377,7 +386,6 @@
 </head>
 <body>
 
-  <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
     <div class="logo">
       <i class="fas fa-building"></i>
@@ -394,11 +402,8 @@
     </ul>
   </div>
 
-  <!-- Main Content -->
   <div class="main-content">
-    <!-- Navbar -->
     <nav class="navbar">
-      <!-- Hamburger Icon for Mobile -->
       <div class="hamburger" id="hamburger">
         <i class="fas fa-bars"></i>
       </div>
@@ -420,13 +425,10 @@
       </div>
     </nav>
 
-    <!-- Page Content -->
     <div id="content">
-      <!-- Dashboard -->
       <div class="page active" id="dashboard">
         <h2>Welcome, Pavan!</h2>
         <p>This is your HR dashboard. Use the sidebar to navigate to other sections.</p>
-        <!-- Summary Cards -->
         <div class="summary-cards">
           <div class="card">
             <i class="fas fa-users"></i>
@@ -457,11 +459,9 @@
             </div>
           </div>
         </div>
-        <!-- Chart -->
         <div class="chart-container">
           <canvas id="performanceChart"></canvas>
         </div>
-        <!-- Activity Feed -->
         <div class="activity-feed">
           <h3>Recent Activity</h3>
           <div class="activity-item">
@@ -473,7 +473,6 @@
             <span>Leave request approved for Virat</span>
           </div>
         </div>
-        <!-- Employee Table -->
         <div class="employee-table">
           <table>
             <thead>
@@ -512,7 +511,6 @@
         </div>
       </div>
 
-      <!-- Other Pages -->
       <div class="page" id="add-user">
         <h2>Add New User</h2>
         <form onsubmit="event.preventDefault(); alert('User Added!');">
@@ -541,10 +539,10 @@
 
       <div class="page" id="departments">
         <h2>Departments</h2>
-        <ul id="departmentList">
-          <li>Human Resources</li>
-          <li>IT Department</li>
-        </ul>
+        <div id="departmentListContainer">
+          <input type="text" class="department-input" value="Human Resources" readonly>
+          <input type="text" class="department-input" value="IT Department" readonly>
+        </div>
         <input type="text" id="newDeptInput" placeholder="New Department">
         <button onclick="addDepartment()">Add Department</button>
       </div>
@@ -592,7 +590,6 @@
     </footer>
   </div>
 
-  <!-- JavaScript -->
   <script>
     const links = document.querySelectorAll('.menu a');
     const pages = document.querySelectorAll('.page');
@@ -697,9 +694,12 @@
     function addDepartment() {
       const deptInput = document.getElementById('newDeptInput');
       if (deptInput.value.trim()) {
-        const li = document.createElement('li');
-        li.innerText = deptInput.value.trim();
-        document.getElementById('departmentList').appendChild(li);
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.classList.add('department-input');
+        input.value = deptInput.value.trim();
+        input.setAttribute('readonly', 'true'); 
+        document.getElementById('departmentListContainer').appendChild(input);
         deptInput.value = '';
       }
     }
