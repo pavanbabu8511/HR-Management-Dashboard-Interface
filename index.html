@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HR Management Dashboard</title>
   <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>   
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --primary-color: #4f46e5;  
+      --primary-color: #4f46e5;   
       --bg-light: #f9fafb;
       --text-dark: #111827;
       --card-bg: #ffffff;
@@ -74,6 +74,12 @@
     .menu i {
       min-width: 24px;
       text-align: center;
+    }
+    /* Hamburger Menu */
+    .hamburger {
+      display: none;
+      font-size: 1.5rem;
+      cursor: pointer;
     }
     /* Main Content */
     .main-content {
@@ -272,9 +278,18 @@
       border-radius: 10px;
       box-shadow: var(--shadow-sm);
     }
+
     @media (max-width: 768px) {
+      .hamburger {
+        display: block;
+      }
       .sidebar {
-        display: none;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1001;
+      }
+      .sidebar.active {
+        transform: translateX(0);
       }
       .main-content {
         margin-left: 0;
@@ -299,10 +314,16 @@
       <li><a href="#" data-page="settings"><i class="fas fa-cog"></i> Settings</a></li>
     </ul>
   </div>
+
   <!-- Main Content -->
   <div class="main-content">
     <!-- Navbar -->
     <nav class="navbar">
+      <!-- Hamburger Icon for Mobile -->
+      <div class="hamburger" id="hamburger">
+        <i class="fas fa-bars"></i>
+      </div>
+
       <div class="search-bar">
         <input type="text" placeholder="Search...">
       </div>
@@ -313,12 +334,18 @@
         <div class="avatar-dropdown">
           <img src="https://img.icons8.com/?size=60&id=98957&format=png" alt="User Avatar" id="avatar-trigger">
           <div class="dropdown-content" id="dropdownMenu">
-            <a href="#">Profile</a> 
+            <a href="#">Profile</a>  
             <a href="#">Logout</a>
           </div>
         </div>
       </div>
     </nav>
+
+
+
+
+
+
     <!-- Page Content -->
     <div id="content">
       <!-- Dashboard -->
@@ -485,112 +512,132 @@
       </div>
     </div>
   </div>
+       <div class="page active" id="dashboard">
+        <h2>Welcome to HR Dashboard</h2>
+        <p>Use the sidebar to navigate.</p>
+      </div>
+    </div>
+  </div>
   <footer>
     © 2025 HR Management Dashboard. All rights reserved.
   </footer>
   <!-- JavaScript -->
-  <script>
-    const links = document.querySelectorAll('.menu a');
-    const pages = document.querySelectorAll('.page');
+ <script>
+  const links = document.querySelectorAll('.menu a');
+  const pages = document.querySelectorAll('.page');
+  const sidebar = document.getElementById('sidebar');
 
-    function showPage(pageId) {
-      links.forEach(link => link.classList.remove('active'));
-      pages.forEach(page => page.classList.remove('active'));
-      document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
-      document.getElementById(pageId).classList.add('active');
-    }
+  function showPage(pageId) {
+    links.forEach(link => link.classList.remove('active'));
+    pages.forEach(page => page.classList.remove('active'));
+    document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
+    document.getElementById(pageId).classList.add('active');
+  }
 
-    // Default load
-    showPage('dashboard');
+  // Default load
+  showPage('dashboard');
 
-    // Handle click
-    links.forEach(link => {
-      link.addEventListener('click', e => {
-        e.preventDefault();
-        const page = link.getAttribute('data-page');
-        showPage(page);
-      });
-    });
-
-    // Add User Form Submission
-    document.querySelector('#add-user form').addEventListener('submit', function () {  
-      const name = this.querySelector('input[type="text"]').value;
-      const role = this.querySelector('select').value;
-      const table = document.querySelector('#manage-employees table');
-      const row = document.createElement('tr');
-      row.innerHTML = `<td>${name}</td><td>${role}</td><td><span class="badge active">Active</span></td>`;
-      table.appendChild(row);
-      this.reset();
-    });
-
-    // Add Department
-    function addDepartment() {
-      const deptInput = document.getElementById('newDeptInput');
-      if (deptInput.value.trim()) {
-        const li = document.createElement('li');
-        li.innerText = deptInput.value.trim();
-        document.getElementById('departmentList').appendChild(li);
-        deptInput.value = '';
-      }
-    }
-
-    // Mark Test User as Present
-    function markTestUserPresent() {
-      const today = new Date().toISOString().split('T')[0];
-      const row = document.createElement('tr');
-      row.innerHTML = `<td>${today}</td><td>Test User</td><td><span class="badge active">Present</span></td>`;
-      document.getElementById('attendanceTable').appendChild(row);
-    }
-
-    // Leave Request Form Submission
-    document.getElementById('leaveRequestForm').onsubmit = function(e) {
+  // Handle click
+  links.forEach(link => {
+    link.addEventListener('click', e => {
       e.preventDefault();
-      const emp = this.querySelector('input[type="text"]').value;
-      const dates = this.querySelectorAll('input[type="date"]');
-      const from = dates[0].value;
-      const to = dates[1].value;
-      const row = document.createElement('tr');
-      row.innerHTML = `<td>${emp}</td><td>${from}</td><td>${to}</td><td><span class="badge inactive">Pending</span></td>`;
-      document.getElementById('leaveRequestsTable').appendChild(row);
-      this.reset();
-    };
+      const page = link.getAttribute('data-page');
+      showPage(page);
 
-    // Initialize Chart
-    const ctx = document.getElementById('performanceChart').getContext('2d');
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [
-          { label: 'Financial Team', data: [12, 19, 3, 5, 2, 3, 10], backgroundColor: '#4f46e5' },
-          { label: 'Marketing Team', data: [3, 5, 2, 3, 10, 2, 19], backgroundColor: '#10b981' }
-        ]
+      // Close sidebar on mobile
+      if (window.innerWidth <= 768) {
+        sidebar.classList.remove('active');
+      }
+    });
+  });
+
+  // Hamburger Toggle
+  const hamburger = document.getElementById('hamburger');
+  if (hamburger) {
+    hamburger.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+    });
+  }
+
+  // Add User Form Submission
+  document.querySelector('#add-user form').addEventListener('submit', function () {  
+    const name = this.querySelector('input[type="text"]').value;
+    const role = this.querySelector('select').value;
+    const table = document.querySelector('#manage-employees table');
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${name}</td><td>${role}</td><td><span class="badge active">Active</span></td>`;
+    table.appendChild(row);
+    this.reset();
+  });
+
+  // Add Department
+  function addDepartment() {
+    const deptInput = document.getElementById('newDeptInput');
+    if (deptInput.value.trim()) {
+      const li = document.createElement('li');
+      li.innerText = deptInput.value.trim();
+      document.getElementById('departmentList').appendChild(li);
+      deptInput.value = '';
+    }
+  }
+
+  // Mark Test User as Present
+  function markTestUserPresent() {
+    const today = new Date().toISOString().split('T')[0];
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${today}</td><td>Test User</td><td><span class="badge active">Present</span></td>`;
+    document.getElementById('attendanceTable').appendChild(row);
+  }
+
+  // Leave Request Form Submission
+  document.getElementById('leaveRequestForm').onsubmit = function(e) {
+    e.preventDefault();
+    const emp = this.querySelector('input[type="text"]').value;
+    const dates = this.querySelectorAll('input[type="date"]');
+    const from = dates[0].value;
+    const to = dates[1].value;
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${emp}</td><td>${from}</td><td>${to}</td><td><span class="badge inactive">Pending</span></td>`;
+    document.getElementById('leaveRequestsTable').appendChild(row);
+    this.reset();
+  };
+
+  // Initialize Chart
+  const ctx = document.getElementById('performanceChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      datasets: [
+        { label: 'Financial Team', data: [12, 19, 3, 5, 2, 3, 10], backgroundColor: '#4f46e5' },
+        { label: 'Marketing Team', data: [3, 5, 2, 3, 10, 2, 19], backgroundColor: '#10b981' }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: true },
+        tooltip: { enabled: true }
       },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: true },
-          tooltip: { enabled: true }
-        },
-        scales: {
-          y: { beginAtZero: true }
-        }
+      scales: {
+        y: { beginAtZero: true }
       }
-    });
+    }
+  });
 
-    // Avatar Dropdown Toggle
-    document.getElementById('avatar-trigger').addEventListener('click', function () {
-      const dropdown = document.getElementById('dropdownMenu');
-      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-    });
+  // Avatar Dropdown Toggle
+  document.getElementById('avatar-trigger').addEventListener('click', function () {
+    const dropdown = document.getElementById('dropdownMenu');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+  });
 
-    document.addEventListener('click', function (event) {
-      const avatar = document.getElementById('avatar-trigger');
-      const dropdown = document.getElementById('dropdownMenu');
-      if (!avatar.contains(event.target)) {
-        dropdown.style.display = 'none';
-      }
-    });
-  </script>
+  document.addEventListener('click', function (event) {
+    const avatar = document.getElementById('avatar-trigger');
+    const dropdown = document.getElementById('dropdownMenu');
+    if (!avatar.contains(event.target)) {
+      dropdown.style.display = 'none';
+    }
+  });
+</script>
 </body>
 </html>
