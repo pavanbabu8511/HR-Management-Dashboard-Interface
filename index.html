@@ -16,7 +16,7 @@
       --bg-light: #f9fafb;
       --text-dark: #111827;
       --card-bg: #ffffff;
-      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
       --transition: all 0.3s ease-in-out;
     }
 
@@ -42,7 +42,7 @@
       background: white;
       padding: 20px;
       transition: var(--transition);
-      z-index: 1001;
+      z-index: 1000;
       box-shadow: 2px 0 10px rgba(0,0,0,0.1);
     }
 
@@ -89,19 +89,6 @@
       display: none;
       font-size: 1.5rem;
       cursor: pointer;
-      z-index: 1002;
-    }
-
-    /* Overlay for mobile */
-    .overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 1000;
     }
 
     /* Main Content */
@@ -125,11 +112,43 @@
       z-index: 999;
     }
 
+    .search-bar {
+      position: relative;
+    }
+
     .search-bar input {
       padding: 8px 12px;
       border: 1px solid #ccc;
       border-radius: 6px;
       width: 200px;
+    }
+
+    .suggestions {
+      position: absolute;
+      top: 45px;
+      left: 0;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 200px;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+      z-index: 999;
+      padding: 0;
+      margin: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .suggestions li {
+      list-style: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .suggestions li:hover {
+      background-color: #f3f4f6;
     }
 
     .user-profile {
@@ -261,99 +280,18 @@
       margin-top: 40px;
     }
 
-    /* Dashboard Specific Styles */
-    .summary-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      margin-top: 20px;
-    }
-
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: var(--shadow-sm);
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .card:hover {
-      transform: scale(1.02);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    }
-
-    .card i {
-      font-size: 28px;
-      color: var(--primary-color);
-    }
-
-    .info .count {
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
-
-    .info .label {
-      color: #6b7280;
-    }
-
-    .chart-container {
-      margin-top: 30px;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    canvas {
-      max-height: 300px;
-    }
-
-    .activity-feed {
-      margin-top: 30px;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .activity-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 0;
-      border-bottom: 1px solid #eee;
-    }
-
-    .employee-table {
-      margin-top: 30px;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: var(--shadow-sm);
-    }
-
     @media (max-width: 768px) {
       .hamburger {
         display: block;
       }
-
       .sidebar {
         transform: translateX(-100%);
         transition: transform 0.3s ease;
         z-index: 1001;
       }
-
       .sidebar.active {
         transform: translateX(0);
       }
-
-      .overlay {
-        display: block;
-      }
-
       .main-content {
         margin-left: 0;
       }
@@ -379,9 +317,6 @@
     </ul>
   </div>
 
-  <!-- Overlay -->
-  <div class="overlay" id="overlay"></div>
-
   <!-- Main Content -->
   <div class="main-content">
     <!-- Navbar -->
@@ -391,7 +326,8 @@
         <i class="fas fa-bars"></i>
       </div>
       <div class="search-bar">
-        <input type="text" placeholder="Search...">
+        <input type="text" placeholder="Search..." id="searchInput">
+        <ul id="suggestionList" class="suggestions"></ul>
       </div>
       <div class="user-profile">
         <div class="notifications">
@@ -457,7 +393,7 @@
           </div>
           <div class="activity-item">
             <i class="fas fa-check-circle"></i>
-            <span>Leave request approved for Jaya</span>
+            <span>Leave request approved for Virat</span>
           </div>
         </div>
         <!-- Employee Table -->
@@ -481,15 +417,15 @@
                 <td><span class="badge active">Active</span></td>
               </tr>
               <tr>
-                <td>Jaya</td>
-                <td>Jaya</td>
+                <td>Rakesh</td>
+                <td>Rakesh</td>
                 <td>Recruiter</td>
                 <td>HR Department</td>
                 <td><span class="badge active">Active</span></td>
               </tr>
               <tr>
-                <td>Babu</td>
-                <td>Babu</td>
+                <td>Manikanta</td>
+                <td>Manikanta</td>
                 <td>Payroll Manager</td>
                 <td>Finance Department</td>
                 <td><span class="badge inactive">Inactive</span></td>
@@ -523,7 +459,7 @@
         <table>
           <tr><th>Name</th><th>Role</th><th>Status</th></tr>
           <tr><td>kalyan</td><td>Developer</td><td><span class="badge active">Active</span></td></tr>
-          <tr><td>Jaya</td><td>Designer</td><td><span class="badge inactive">Inactive</span></td></tr>
+          <tr><td>Virat</td><td>Designer</td><td><span class="badge inactive">Inactive</span></td></tr>
         </table>
       </div>
 
@@ -589,8 +525,6 @@
     const links = document.querySelectorAll('.menu a');
     const pages = document.querySelectorAll('.page');
     const sidebar = document.getElementById('sidebar');
-    const hamburger = document.getElementById('hamburger');
-    const overlay = document.getElementById('overlay');
 
     function showPage(pageId) {
       links.forEach(link => link.classList.remove('active'));
@@ -602,7 +536,7 @@
     // Default load
     showPage('dashboard');
 
-    // Handle click navigation
+    // Handle sidebar menu clicks
     links.forEach(link => {
       link.addEventListener('click', e => {
         e.preventDefault();
@@ -612,23 +546,71 @@
         // Close sidebar on mobile
         if (window.innerWidth <= 768) {
           sidebar.classList.remove('active');
-          overlay.style.display = 'none';
         }
       });
     });
 
     // Hamburger Toggle
+    const hamburger = document.getElementById('hamburger');
     if (hamburger) {
       hamburger.addEventListener('click', () => {
         sidebar.classList.toggle('active');
-        overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
       });
     }
 
-    // Click outside to close sidebar
-    overlay.addEventListener('click', () => {
-      sidebar.classList.remove('active');
-      overlay.style.display = 'none';
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const suggestionList = document.getElementById('suggestionList');
+    const menuItems = [
+      { name: 'Dashboard', page: 'dashboard' },
+      { name: 'Add User', page: 'add-user' },
+      { name: 'Manage Employees', page: 'manage-employees' },
+      { name: 'Departments', page: 'departments' },
+      { name: 'Attendance', page: 'attendance' },
+      { name: 'Leave Requests', page: 'leave-requests' },
+      { name: 'Settings', page: 'settings' }
+    ];
+
+    function showSuggestions(matches) {
+      suggestionList.innerHTML = '';
+      if (matches.length === 0) {
+        suggestionList.style.display = 'none';
+        return;
+      }
+
+      matches.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item.name;
+        li.addEventListener('click', () => {
+          showPage(item.page);
+          searchInput.value = item.name;
+          suggestionList.style.display = 'none';
+        });
+        suggestionList.appendChild(li);
+      });
+
+      suggestionList.style.display = 'block';
+    }
+
+    searchInput.addEventListener('input', function () {
+      const query = this.value.toLowerCase().trim();
+      if (!query) {
+        suggestionList.style.display = 'none';
+        return;
+      }
+
+      const matches = menuItems.filter(item =>
+        item.name.toLowerCase().includes(query)
+      );
+
+      showSuggestions(matches);
+    });
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function (event) {
+      if (!document.querySelector('.search-bar').contains(event.target)) {
+        suggestionList.style.display = 'none';
+      }
     });
 
     // Add User Form Submission
